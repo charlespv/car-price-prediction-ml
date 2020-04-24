@@ -29,3 +29,30 @@ pip install requirements.txt
 ```bash
 streamlit run app.py
 ```
+
+## Architecture
+
+### Data Engineering
+Input:
+- Initial dataset
+- Eventually new  dataset 
+
+Process:
+- Remove duplicated content (rows and columns)
+- Remove missing values
+- Adapt data type (categorical, numerical, datetime, string)
+- Provide insight about unique value for each categorical value
+- Provide insight about each numerical value (.describe)
+- Encode Categorical variable in One Hot Encoder (update Data Dictionary)
+- Extract features from "Description"
+
+Output
+- Processed dataset
+- Data Dictionary
+
+### Machine Learning
+Input:
+- Dataset
+- Data Dictionary
+
+### App
