@@ -30,7 +30,7 @@ pip install requirements.txt
 streamlit run app.py
 ```
 
-## Architecture
+## Architecture and features
 
 ### Data Engineering
 Input:
@@ -42,7 +42,7 @@ Process:
 - Remove missing values
 - Adapt data type (categorical, numerical, datetime, string)
 - Provide insight about unique value for each categorical value
-- Provide insight about each numerical value (.describe)
+- Provide insight about each numerical value (.describe())
 - Encode Categorical variable in One Hot Encoder (update Data Dictionary)
 - Extract features from "Description"
 
@@ -54,5 +54,22 @@ Output
 Input:
 - Dataset
 - Data Dictionary
+
+process:
+- learn object: 
+    - Original dataset in df / dataset.original /return df
+    - Train split /dataset.train_set/ return df X_train, y_train
+    - Test split /dataset.test_set /return df X_test, y_test
+    - Data Dictionary /dataset.data_dictionary /return df
+- analyze target variable distribution
+- normalization
+- feature selection (corr matrix, RFE, Sharp with basic model)
+- grid search and select best score based on CV results
+- results on test set
+- Train on full learn_set
+
+Output:
+- model 
+- features needed for prediction with possible value
 
 ### App
