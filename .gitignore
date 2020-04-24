@@ -1,8 +1,22 @@
 # Created by https://www.gitignore.io/api/macos,dotenv,pycharm,virtualenv
 # Edit at https://www.gitignore.io/?templates=macos,dotenv,pycharm,virtualenv
 
-### dotenv ###
+### csv ###
 *.csv
+
+### JupyterNotebooks ###
+# gitignore template for Jupyter Notebooks
+# website: http://jupyter.org/
+
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Remove previous ipynb_checkpoints
+#   git rm -r .ipynb_checkpoints/
 
 ### dotenv ###
 .env
