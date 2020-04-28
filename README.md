@@ -38,13 +38,17 @@ Input:
 - Eventually new  dataset 
 
 Process:
-- Remove duplicated content (rows and columns)
-- Remove missing values
+- Spot and remove duplicated content (rows and columns)
+- Spot and remove missing values
 - Adapt data type (categorical, numerical, datetime, string)
 - Provide insight about unique value for each categorical value
 - Provide insight about each numerical value (.describe())
 - Encode Categorical variable in One Hot Encoder (update Data Dictionary)
+- Ordinal Encoding (One Hot Encoder and keeping the order)
+- High Cardinality handling
+
 - Extract features from "Description"
+- Log in the file all the transformation, editing
 
 Output
 - Processed dataset
@@ -56,20 +60,34 @@ Input:
 - Data Dictionary
 
 process:
-- learn object: 
+- Learn object: 
     - Original dataset in df / dataset.original /return df
     - Train split /dataset.train_set/ return df X_train, y_train
     - Test split /dataset.test_set /return df X_test, y_test
     - Data Dictionary /dataset.data_dictionary /return df
-- analyze target variable distribution
-- normalization
-- feature selection (corr matrix, RFE, Sharp with basic model)
-- grid search and select best score based on CV results
-- results on test set
+- Analyze target variable distribution
+- Analyze if target imbalanced
+- Normalization of numerical features
+- Analyze features variance
+- Multi collinearity handling https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance_multicollinear.html#sphx-glr-auto-examples-inspection-plot-permutation-importance-multicollinear-py
+- CAH
+- Feature selection (corr matrix, RFE, SHAP/LIME with basic model)
+- Grid search and select best score based on CV results
+- Results on test set
 - Train on full learn_set
+- SHAP/LIME/permutation_importance interpretation
 
 Output:
-- model 
-- features needed for prediction with possible value
+- Model 
+- Features needed for prediction with possible value
 
 ### App
+
+Input:
+- Data Dictionary
+- Features list needed for the prediction
+
+Interaction :
+- form
+- display prediction and price tuning range
+- how this car price is considering others cars price (good deal or not)
