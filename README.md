@@ -91,3 +91,11 @@ Interaction :
 - form
 - display prediction and price tuning range
 - how this car price is considering others cars price (good deal or not)
+
+### Cheatsheet Streamlit
+
+```python3
+## User input : text
+Model_year = st.text_input('Model_year', '2010')
+```
+
