@@ -66,7 +66,6 @@ process:
     - Test split /dataset.test_set /return df X_test, y_test
     - Data Dictionary /dataset.data_dictionary /return df
 - Analyze target variable distribution
-- Analyze if target imbalanced
 - Normalization of numerical features
 - Analyze features variance
 - Multi collinearity handling https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance_multicollinear.html#sphx-glr-auto-examples-inspection-plot-permutation-importance-multicollinear-py

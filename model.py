@@ -12,7 +12,7 @@ X, y = airpy.data_eng.learn_set(dataset_file_path, 'Price')
 airpy.data_eng.generate_data_dict(X, 'data_dict.txt')
 
 # Split
-X_train, y_train, X_test, y_test = airpy.data_eng.split_train_test(X, y, 0.2)
+X_train, y_train, X_test, y_test = airpy.machine_learning.split_train_test(X, y, 0.2)
 
 # Train
 reg = airpy.machine_learning.Model(X_train, y_train, X_test, y_test)

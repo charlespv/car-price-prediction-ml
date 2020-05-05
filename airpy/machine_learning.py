@@ -1,9 +1,15 @@
+from sklearn.model_selection import train_test_split
+
 from sklearn.linear_model import LinearRegression
 from sklearn.dummy import DummyRegressor
 
 from sklearn.metrics import mean_squared_error, r2_score
 
 import joblib
+
+def split_train_test(X, y, ratio_size):
+    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=ratio_size, random_state=42)
+    return x_train, y_train, x_test, y_test
 
 
 class Model:
