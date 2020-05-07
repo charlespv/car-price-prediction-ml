@@ -38,14 +38,16 @@ Input:
 - Eventually new  dataset 
 
 Process:
-- Spot and remove duplicated content (rows and columns)
-- Spot and remove missing values
-- Adapt data type (categorical, numerical, datetime, string)
-- Provide insight about unique value for each categorical value
-- Provide insight about each numerical value (.describe())
+- [X] Spot and remove duplicated content (rows and columns) 
+- [X] Spot and remove missing values
+- [ ] Parse somes columns
+- [X] Adapt data type (categorical, numerical, datetime, string)
+- [X] Provide insight about unique value for each categorical value
+- [X] Provide insight about each numerical value (.describe())
 - Encode Categorical variable in One Hot Encoder (update Data Dictionary)
 - Ordinal Encoding (One Hot Encoder and keeping the order)
 - High Cardinality handling
+- Compute age of the car (Online - Model Year)
 
 - Extract features from "Description"
 - Log in the file all the transformation, editing
@@ -75,6 +77,7 @@ process:
 - Results on test set
 - Train on full learn_set
 - SHAP/LIME/permutation_importance interpretation
+- Performance metrics : AMAP
 
 Output:
 - Model 

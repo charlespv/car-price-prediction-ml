@@ -8,9 +8,6 @@ model_filename = 'final_model.sav'
 # Load Data
 X, y = airpy.data_eng.learn_set(dataset_file_path, 'Price')
 
-# Generate Data Dictionary
-airpy.data_eng.generate_data_dict(X, 'data_dict.txt')
-
 # Split
 X_train, y_train, X_test, y_test = airpy.machine_learning.split_train_test(X, y, 0.2)
 

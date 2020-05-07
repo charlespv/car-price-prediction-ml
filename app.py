@@ -15,7 +15,8 @@ data_dict_path = 'data_dict.txt'
 
 # Call saved file
 loaded_model = joblib.load(model_filename)
-data_dict_cols = airpy.data_eng.read_data_dict(data_dict_path)
+data_dict = airpy.data_eng.read_data_dict(data_dict_path)
+features_name = data_dict.keys()
 
 # Start the app
 st.title('Car price estimator')
@@ -24,7 +25,7 @@ st.write(' ')
 
 # Feature required
 st.write('Feature used : ')
-st.write(data_dict_cols)
+st.write(features_name)
 
 # User input
 Model_year = st.number_input('Insert the year of the model: ', 1900, value= 2010, step=1)
