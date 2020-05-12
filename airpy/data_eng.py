@@ -1,9 +1,12 @@
 import pandas as pd
+import numpy as np
 
 import joblib
 
-def remove_duplicated_rows(dataset):
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
+
+def remove_duplicated_rows(dataset):
     print('# Drop duplicated content')
     print('Dataset shape : ', dataset.shape)
 
@@ -15,7 +18,6 @@ def remove_duplicated_rows(dataset):
 
 
 def missing_values(dataset):
-
     print('# Drop column and rows containing missing value')
     print('Dataset shape : ', dataset.shape)
 
@@ -27,6 +29,7 @@ def missing_values(dataset):
     print('# After process')
     print('Dataset shape : ', df_results.shape)
     return df_results
+
 
 def generate_data_dict(dataset, details, path):
     for item in details.items():
@@ -43,8 +46,10 @@ def generate_data_dict(dataset, details, path):
             details.get(feature_name).update({'unique_value': list(unique_value)})
     joblib.dump(details, path)
 
+
 def read_data_dict(path):
     return joblib.load(path)
+
 
 def adapt_datatype(dataset, path):
     data_dict = read_data_dict(path)
@@ -56,6 +61,7 @@ def adapt_datatype(dataset, path):
         if feature_type == "categorical":
             dataset[feature_name] = dataset[feature_name].astype('category')
     return dataset
+
 
 def specific_parser(dataset):
     # Mileage : remove 'km'
@@ -75,15 +81,52 @@ def specific_parser(dataset):
 
     dataset['car_age'] = dataset['pub_year'] - dataset['Model_year']
 
+    dataset['descrip_chevaux'] = dataset['Description'].str.extract('(puissance_fiscale:.*(?=, portes:))')
+    dataset['descrip_chevaux'] = dataset['descrip_chevaux'].str.replace('puissance_fiscale: ', '')
+    dataset['descrip_chevaux'] = dataset['descrip_chevaux'].astype('int32')
+
     dataset = dataset.drop('Online', axis=1)
 
     return dataset
+
+
+def remove_outlier(df):
+    # Price
+    print('Shape before removing outlier : ', df.shape)
+    target_name = "Price"
+    factor = 15
+    rows_to_drop = df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())].index
+    #print(df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())][target_name].head())
+    df = df.drop(rows_to_drop, axis=0)
+    print('Shape after removing outlier : ', df.shape)
+
+    # Mileage
+    print('Shape before removing outlier : ', df.shape)
+    target_name = "Mileage"
+    factor = 5
+    rows_to_drop = df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())].index
+    #print(df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())][target_name].head())
+    df = df.drop(rows_to_drop, axis=0)
+    print('Shape after removing outlier : ', df.shape)
+
+    # car_age
+    print('Shape before removing outlier : ', df.shape)
+    target_name = "car_age"
+    factor = 4
+    rows_to_drop = df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())].index
+    #print(df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())][target_name].head())
+    df = df.drop(rows_to_drop, axis=0)
+    print('Shape after removing outlier : ', df.shape)
+
+    return df
+
 
 def learn_set(path, target_name):
     dataset = pd.read_csv(path)
     dataset = remove_duplicated_rows(dataset)
     dataset = missing_values(dataset)
     dataset = specific_parser(dataset)
+    dataset = remove_outlier(dataset)
     dict_handwritten = {
         "Price": {
             "type": "numerical",
@@ -121,12 +164,41 @@ def learn_set(path, target_name):
             "type": "text",
             "description": "text written by the user about the offer"
         },
+        "pub_month": {
+            "type": "numerical",
+            "description": "Month of publication"
+        },
+        "pub_year": {
+            "type": "numerical",
+            "description": "Year of publication"
+        },
+        "car_age": {
+            "type": "numerical",
+            "description": "Duration between car model release and offer publication"
+        },
+        "descrip_chevaux": {
+            "type": "numerical",
+            "description": "Fiscal Horsepower"
+        },
     }
     generate_data_dict(dataset, dict_handwritten, "data_dict.txt")
     dataset = adapt_datatype(dataset, "data_dict.txt")
     print(dataset.columns)
-    features = ['Model_year', 'Mileage', 'pub_day', 'pub_month', 'pub_year', 'pub_hour', 'pub_minute', 'car_age']
+    features = ['Model_year', 'Mileage',
+                'pub_month', 'pub_year',
+                'car_age', 'descrip_chevaux',
+                'Gearbox', 'Fuel',
+                'Make', 'Model']
     X = dataset[features]
+
+    # Dummies
+    quality_features = ['Gearbox', 'Fuel', 'Make', 'Model']
+    quanti_features = ['Model_year', 'Mileage', 'pub_month', 'pub_year', 'car_age', 'descrip_chevaux']
+    X_dummy = pd.get_dummies(X[quality_features])
+    X = pd.concat([X[quanti_features], X_dummy], axis=1)
     y = dataset[target_name]
     return X, y
+
+
+
 

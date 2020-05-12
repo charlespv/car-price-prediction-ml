@@ -12,7 +12,8 @@ X, y = airpy.data_eng.learn_set(dataset_file_path, 'Price')
 X_train, y_train, X_test, y_test = airpy.machine_learning.split_train_test(X, y, 0.2)
 
 # Train
-reg = airpy.machine_learning.Model(X_train, y_train, X_test, y_test)
+quanti_features = ['Model_year', 'Mileage', 'pub_month', 'pub_year', 'car_age', 'descrip_chevaux']
+reg = airpy.machine_learning.Model(X_train, y_train, X_test, y_test, quanti_features)
 
 reg.performance()
 
