@@ -5,6 +5,7 @@ import joblib
 
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
+import re
 
 def remove_duplicated_rows(dataset):
     print('# Drop duplicated content')
@@ -17,14 +18,25 @@ def remove_duplicated_rows(dataset):
     return df_results
 
 
-def missing_values(dataset):
+def missing_values(dataset, type):
     print('# Drop column and rows containing missing value')
     print('Dataset shape : ', dataset.shape)
 
-    # Remove columns containing too much missing value
-    dataset = dataset.dropna(1)
-    # Remove rows containing too much missing value
-    df_results = dataset.dropna(0)
+    if type == 'all':
+        # Remove columns containing too much missing value
+        dataset = dataset.dropna(1)
+        # Remove rows containing too much missing value
+        df_results = dataset.dropna(0)
+
+    if type == 'column':
+        # Remove columns containing too much missing value
+        df_results = dataset.dropna(1)
+
+    if type == 'row' :
+        # Remove rows containing too much missing value
+        df_results = dataset.dropna(0)
+
+
 
     print('# After process')
     print('Dataset shape : ', df_results.shape)
@@ -81,9 +93,24 @@ def specific_parser(dataset):
 
     dataset['car_age'] = dataset['pub_year'] - dataset['Model_year']
 
+    dataset['descrip_version'] = dataset['Description'].str.extract('(version:.*(?=, puissance_fiscale))')
+    dataset['descrip_version'] = dataset['descrip_version'].str.replace('version: ', '')
+
+    dataset['descrip_cylindre'] = dataset['descrip_version'].str.extract(r'([0-9]\.[0-9])')
+    dataset['descrip_cylindre'] = dataset['descrip_cylindre'].astype('float32', errors='ignore')
+    dataset['descrip_cylindre'] = dataset['descrip_cylindre'].fillna(dataset['descrip_cylindre'].mean())
+
     dataset['descrip_chevaux'] = dataset['Description'].str.extract('(puissance_fiscale:.*(?=, portes:))')
     dataset['descrip_chevaux'] = dataset['descrip_chevaux'].str.replace('puissance_fiscale: ', '')
     dataset['descrip_chevaux'] = dataset['descrip_chevaux'].astype('int32')
+
+    dataset['descrip_portes'] = dataset['Description'].str.extract('(portes:.*(?=, options))')
+    dataset['descrip_portes'] = dataset['descrip_portes'].str.replace('portes: ', '')
+    dataset['descrip_portes'] = dataset['descrip_portes'].str.replace('', '0')
+    dataset['descrip_portes'] = dataset['descrip_portes'].str.split('.', expand=True)[0].astype('int32', errors='ignore')
+    dataset['descrip_portes'] = dataset['descrip_portes'].fillna(dataset['descrip_portes'].mean())
+
+
 
     dataset = dataset.drop('Online', axis=1)
 
@@ -93,30 +120,38 @@ def specific_parser(dataset):
 def remove_outlier(df):
     # Price
     print('Shape before removing outlier : ', df.shape)
-    target_name = "Price"
+    feature_name = "Price"
     factor = 15
-    rows_to_drop = df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())].index
-    #print(df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())][target_name].head())
+    rows_to_drop = df[np.abs(df[feature_name ] - df[feature_name ].mean()) >= (factor * df[feature_name ].std())].index
+    #print(df[np.abs(df[feature_name ] - df[feature_name ].mean()) >= (factor * df[feature_name ].std())][feature_name ].head())
     df = df.drop(rows_to_drop, axis=0)
     print('Shape after removing outlier : ', df.shape)
 
     # Mileage
     print('Shape before removing outlier : ', df.shape)
-    target_name = "Mileage"
+    feature_name  = "Mileage"
     factor = 5
-    rows_to_drop = df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())].index
-    #print(df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())][target_name].head())
+    rows_to_drop = df[np.abs(df[feature_name ] - df[feature_name ].mean()) >= (factor * df[feature_name ].std())].index
+    #print(df[np.abs(df[feature_name ] - df[feature_name ].mean()) >= (factor * df[feature_name ].std())][feature_name ].head())
     df = df.drop(rows_to_drop, axis=0)
     print('Shape after removing outlier : ', df.shape)
 
     # car_age
     print('Shape before removing outlier : ', df.shape)
-    target_name = "car_age"
+    feature_name  = "car_age"
     factor = 4
-    rows_to_drop = df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())].index
-    #print(df[np.abs(df[target_name] - df[target_name].mean()) >= (factor * df[target_name].std())][target_name].head())
+    rows_to_drop = df[np.abs(df[feature_name ] - df[feature_name ].mean()) >= (factor * df[feature_name ].std())].index
+    #print(df[np.abs(df[feature_name ] - df[feature_name ].mean()) >= (factor * df[feature_name ].std())][feature_name ].head())
     df = df.drop(rows_to_drop, axis=0)
     print('Shape after removing outlier : ', df.shape)
+
+    # Make aka Brand
+    print('Shape before removing outlier : ', df.shape)
+    feature_name = "Make"
+    brand_counts = df[feature_name].value_counts()
+    df = df[df.isin(brand_counts.index[brand_counts >= 200]).values]
+    print('Shape after removing outlier : ', df.shape)
+
 
     return df
 
@@ -124,8 +159,9 @@ def remove_outlier(df):
 def learn_set(path, target_name):
     dataset = pd.read_csv(path)
     dataset = remove_duplicated_rows(dataset)
-    dataset = missing_values(dataset)
+    dataset = missing_values(dataset, 'all')
     dataset = specific_parser(dataset)
+    dataset = missing_values(dataset, 'row')
     dataset = remove_outlier(dataset)
     dict_handwritten = {
         "Price": {
@@ -183,17 +219,17 @@ def learn_set(path, target_name):
     }
     generate_data_dict(dataset, dict_handwritten, "data_dict.txt")
     dataset = adapt_datatype(dataset, "data_dict.txt")
-    print(dataset.columns)
     features = ['Model_year', 'Mileage',
                 'pub_month', 'pub_year',
-                'car_age', 'descrip_chevaux',
+                'car_age',
                 'Gearbox', 'Fuel',
-                'Make', 'Model']
+                'Make', 'Model',
+                'descrip_cylindre', 'descrip_portes']
     X = dataset[features]
 
     # Dummies
     quality_features = ['Gearbox', 'Fuel', 'Make', 'Model']
-    quanti_features = ['Model_year', 'Mileage', 'pub_month', 'pub_year', 'car_age', 'descrip_chevaux']
+    quanti_features = ['Model_year', 'Mileage', 'pub_month', 'pub_year', 'car_age', 'descrip_cylindre', 'descrip_portes']
     X_dummy = pd.get_dummies(X[quality_features])
     X = pd.concat([X[quanti_features], X_dummy], axis=1)
     y = dataset[target_name]

@@ -56,14 +56,11 @@ class Model:
         self.y_pred_trans = self.regr_trans.predict(self.x_test_scaled)
 
     def performance(self):
-        # The mean squared error
-        print('Mean squared error: ', mean_squared_error(self.y_test, self.y_pred))
         # The coefficient of determination: 1 is perfect prediction
         print('Coefficient of determination: ', r2_score(self.y_test, self.y_pred))
         print('MAPE: ', mean_absolute_percentage_error(self.y_test, self.y_pred))
-        print('MAPE Trans: ', mean_absolute_percentage_error(self.y_test, self.y_pred_trans))
-        print('MAE Trans: ', mean_absolute_error(self.y_test, self.y_pred_trans))
-        print('MSE Trans : ', mean_squared_error(self.y_test, self.y_pred_trans))
+        print('MAPE Power Transformed: ', mean_absolute_percentage_error(self.y_test, self.y_pred_trans))
+        print('MAE Power Transformed: ', mean_absolute_error(self.y_test, self.y_pred_trans))
 
     def predict(self, x_pred):
         y_pred = self.mdl.predict(x_pred)

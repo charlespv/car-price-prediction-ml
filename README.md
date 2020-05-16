@@ -40,17 +40,16 @@ Input:
 Process:
 - [X] Spot and remove duplicated content (rows and columns) 
 - [X] Spot and remove missing values
-- [ ] Parse somes columns
 - [X] Adapt data type (categorical, numerical, datetime, string)
 - [X] Provide insight about unique value for each categorical value
 - [X] Provide insight about each numerical value (.describe())
-- Encode Categorical variable in One Hot Encoder (update Data Dictionary)
-- Ordinal Encoding (One Hot Encoder and keeping the order)
-- High Cardinality handling
-- Compute age of the car (Online - Model Year)
+- [X] Get dummies of categorical variable in One Hot Encoder (update Data Dictionary)
+- [ ] Ordinal Encoding (One Hot Encoder and keeping the order)
+- [ ] High Cardinality handling
+- [X] Compute age of the car (Online - Model Year)
 
-- Extract features from "Description"
-- Log in the file all the transformation, editing
+- [ ] Parse 'Options:'
+- [ ] Use Data Mapper
 
 Output
 - Processed dataset
@@ -71,13 +70,12 @@ process:
 - Normalization of numerical features
 - Analyze features variance
 - Multi collinearity handling https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance_multicollinear.html#sphx-glr-auto-examples-inspection-plot-permutation-importance-multicollinear-py
-- CAH
 - Feature selection (corr matrix, RFE, SHAP/LIME with basic model)
 - Grid search and select best score based on CV results
 - Results on test set
 - Train on full learn_set
 - SHAP/LIME/permutation_importance interpretation
-- Performance metrics : AMAP
+- Performance metrics : MAPE
 
 Output:
 - Model 
