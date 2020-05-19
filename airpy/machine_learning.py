@@ -66,6 +66,12 @@ class Model:
         y_pred = self.mdl.predict(x_pred)
         return y_pred
 
-    def export(self, path):
+    def export(self, reg_path, std_path, features_path):
         # save the model to disk
-        joblib.dump(self.mdl, path)
+        joblib.dump(self.mdl, reg_path)
+
+        # save the model to disk
+        joblib.dump(self.scale_mdl, std_path)
+
+        # save features column needed
+        joblib.dump(list(self.x_train.columns), features_path)

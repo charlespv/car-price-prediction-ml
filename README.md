@@ -44,12 +44,11 @@ Process:
 - [X] Provide insight about unique value for each categorical value
 - [X] Provide insight about each numerical value (.describe())
 - [X] Get dummies of categorical variable in One Hot Encoder (update Data Dictionary)
-- [ ] Ordinal Encoding (One Hot Encoder and keeping the order)
-- [ ] High Cardinality handling
 - [X] Compute age of the car (Online - Model Year)
 
-- [ ] Parse 'Options:'
+- [ ] Count vectorizer on 'Options:'
 - [ ] Use Data Mapper
+- [ ] Scrap AutoPlus and fuzzy match
 
 Output
 - Processed dataset
@@ -70,15 +69,17 @@ process:
 - Normalization of numerical features
 - Analyze features variance
 - Multi collinearity handling https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance_multicollinear.html#sphx-glr-auto-examples-inspection-plot-permutation-importance-multicollinear-py
-- Feature selection (corr matrix, RFE, SHAP/LIME with basic model)
+- Feature selection)
+- CV
 - Grid search and select best score based on CV results
 - Results on test set
 - Train on full learn_set
 - SHAP/LIME/permutation_importance interpretation
-- Performance metrics : MAPE
+- Performance metrics : MAPE, MAE
 
 Output:
-- Model 
+- Regression Model
+- Std model 
 - Features needed for prediction with possible value
 
 ### App

@@ -99,6 +99,7 @@ def specific_parser(dataset):
     dataset['descrip_cylindre'] = dataset['descrip_version'].str.extract(r'([0-9]\.[0-9])')
     dataset['descrip_cylindre'] = dataset['descrip_cylindre'].astype('float32', errors='ignore')
     dataset['descrip_cylindre'] = dataset['descrip_cylindre'].fillna(dataset['descrip_cylindre'].mean())
+    dataset['descrip_cylindre'] = dataset['descrip_cylindre'].astype('float32', errors='ignore')
 
     dataset['descrip_chevaux'] = dataset['Description'].str.extract('(puissance_fiscale:.*(?=, portes:))')
     dataset['descrip_chevaux'] = dataset['descrip_chevaux'].str.replace('puissance_fiscale: ', '')
@@ -177,7 +178,7 @@ def learn_set(path, target_name):
             "description": "Model of the car"
         },
         "Model_year": {
-            "type": "date",
+            "type": "numerical",
             "description": "Year of release of the model"
         },
         "Mileage": {
@@ -212,9 +213,13 @@ def learn_set(path, target_name):
             "type": "numerical",
             "description": "Duration between car model release and offer publication"
         },
-        "descrip_chevaux": {
+        "descrip_cylindre": {
             "type": "numerical",
-            "description": "Fiscal Horsepower"
+            "description": "Size of the cylinder"
+        },
+        "descrip_portes": {
+            "type": "numerical",
+            "description": "Number of gate"
         },
     }
     generate_data_dict(dataset, dict_handwritten, "data_dict.txt")
