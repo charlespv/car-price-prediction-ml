@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import joblib
 
-import airpy
+import autopluspy
 
 import streamlit as st
 
@@ -27,7 +27,7 @@ data_dict_path = 'data_dict.txt'
 loaded_model = joblib.load(reg_mdl_filename)
 loaded_std = joblib.load(std_mdl_filename)
 features_list = joblib.load(features_filename)
-data_dict = airpy.data_eng.read_data_dict(data_dict_path)
+data_dict = autopluspy.data_eng.read_data_dict(data_dict_path)
 features_name = list(data_dict.keys())
 features_name = features_name[1:]
 

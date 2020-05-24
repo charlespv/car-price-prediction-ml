@@ -158,7 +158,7 @@ pip-selfcheck.json
 # Byte-compiled / optimized / DLL files
 /__pycache__
 __pycache__/
-airpy/__pycache__
+autopluspy/__pycache__
 *.py[cod]
 *$py.class
 

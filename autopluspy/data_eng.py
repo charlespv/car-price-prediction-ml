@@ -4,8 +4,17 @@ import numpy as np
 import joblib
 
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.utils import shuffle
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import PCA
 
 import re
+import nltk
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
+nltk.download('punkt')
+nltk.download('stopwords')
 
 def remove_duplicated_rows(dataset):
     print('# Drop duplicated content')
@@ -74,6 +83,49 @@ def adapt_datatype(dataset, path):
             dataset[feature_name] = dataset[feature_name].astype('category')
     return dataset
 
+def extract_options(dataset):
+    print("## Copy Description")
+    df = pd.DataFrame()
+    df['Description'] = dataset['Description']
+
+    # Clean text
+    print("## Extract Option")
+    df['descrip_options'] = df['Description'].str.extract('(options:.*(?=, couleur))')
+    df['descrip_options'] = df['descrip_options'].str.replace('options: ', '')
+
+    print("## Remove special caracters")
+    df['sb_option'] = df['descrip_options'].map(lambda x: re.sub('[,.\/!?;&]', '', x))
+    df['sb_option'] = df['sb_option'].map(lambda x: re.sub('\d', '', x))
+
+    print("## Tokenize")
+    df['sb_option'] = df['sb_option'].map(lambda x: word_tokenize(x))
+    french_stopword = stopwords.words('french')
+    df['sb_option'] = df['sb_option'].apply(lambda x: [element for element in x if element not in french_stopword])
+
+    print("## Stemmize")
+    stemmer = SnowballStemmer('french')
+    df['sb_option'] = df['sb_option'].apply(lambda x: [stemmer.stem(element) for element in x])
+
+    # Count vectorizer
+    print("## Count Vect")
+    count_vectorizer = CountVectorizer()
+    count_data = count_vectorizer.fit_transform(df['sb_option'].map(lambda x: ' '.join(x))).todense()
+    print(count_data.shape)
+    count_data = pd.DataFrame(count_data)
+
+    print("## PCA")
+    n_comp = 100
+    columns_name = ['pca_res_' + str(i) for i in range(1, n_comp + 1)]
+    print(count_data.shape)
+    count_data = count_data.iloc[:, 0:1000]
+    print("## PCA Fit")
+    pca = PCA(n_comp).fit(count_data)
+    print("## PCA Transform")
+    df_option_extracted = pd.DataFrame(pca.transform(count_data))
+    df_option_extracted.columns = columns_name
+
+    return df_option_extracted, columns_name
+
 
 def specific_parser(dataset):
     # Mileage : remove 'km'
@@ -110,10 +162,6 @@ def specific_parser(dataset):
     dataset['descrip_portes'] = dataset['descrip_portes'].str.replace('', '0')
     dataset['descrip_portes'] = dataset['descrip_portes'].str.split('.', expand=True)[0].astype('int32', errors='ignore')
     dataset['descrip_portes'] = dataset['descrip_portes'].fillna(dataset['descrip_portes'].mean())
-
-
-
-    dataset = dataset.drop('Online', axis=1)
 
     return dataset
 
@@ -159,11 +207,13 @@ def remove_outlier(df):
 
 def learn_set(path, target_name):
     dataset = pd.read_csv(path)
+    #dataset = shuffle(dataset, n_samples=10000, random_state=0)
+    # dataset = shuffle(dataset, random_state=0)
+
     dataset = remove_duplicated_rows(dataset)
     dataset = missing_values(dataset, 'all')
     dataset = specific_parser(dataset)
-    dataset = missing_values(dataset, 'row')
-    dataset = remove_outlier(dataset)
+
     dict_handwritten = {
         "Price": {
             "type": "numerical",
@@ -226,19 +276,45 @@ def learn_set(path, target_name):
     dataset = adapt_datatype(dataset, "data_dict.txt")
     features = ['Model_year', 'Mileage',
                 'pub_month', 'pub_year',
-                'car_age',
-                'Gearbox', 'Fuel',
-                'Make', 'Model',
+                'car_age', 'Gearbox',
+                'Make', 'Model', 'Fuel',
                 'descrip_cylindre', 'descrip_portes']
+
+    print("shape before NLP : ", dataset.shape)
+    pca_columns = []
+    extracted_set, pca_columns = extract_options(dataset)
+    dataset = pd.concat([dataset, extracted_set], axis=1)
+
+    print("shape after NLP : ", dataset.shape)
+
+    dataset = dataset.drop(['Online', 'Description'], axis=1)
+
+    dataset = missing_values(dataset, 'row')
+    dataset = remove_outlier(dataset)
+
+    # TODO Refactor
+    for f in pca_columns:
+        features.append(f)
+
     X = dataset[features]
+    X = missing_values(X, 'row')
 
     # Dummies
-    quality_features = ['Gearbox', 'Fuel', 'Make', 'Model']
+    quality_features = ['Gearbox', 'Make', 'Model', 'Fuel']
     quanti_features = ['Model_year', 'Mileage', 'pub_month', 'pub_year', 'car_age', 'descrip_cylindre', 'descrip_portes']
+
+    # TODO refactor
+    for f in pca_columns:
+        quanti_features.append(f)
+
     X_dummy = pd.get_dummies(X[quality_features])
     X = pd.concat([X[quanti_features], X_dummy], axis=1)
     y = dataset[target_name]
-    return X, y
+
+    # Shuffle
+    #X, y = shuffle(X, y, random_state=42)
+
+    return X, y, quanti_features, quality_features
 
 
 

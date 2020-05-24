@@ -9,7 +9,7 @@ This project need skill in Machine learning (linear regression, NLP), data clean
 2. Make a classical cleaning stage, run the pipeline
 3. Make a classical preprocessing stage, run the pipeline
 4. Make a stage to handle "Description" columns
-4. Benchmark few models (example : linreg, rf, lightgbm, small neural network for the fun)
+4. Benchmark few models (example : linreg, rf)
 5. Bonus : fetch new dataset to improve the model
 
 ## Getting started
