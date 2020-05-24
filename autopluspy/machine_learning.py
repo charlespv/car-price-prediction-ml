@@ -13,7 +13,10 @@ from sklearn.compose import TransformedTargetRegressor
 
 from sklearn.metrics import r2_score, make_scorer
 
+from sklearn.inspection import permutation_importance
+
 import joblib
+import matplotlib.pyplot as plt
 
 
 def split_train_test(X, y, ratio_size):
@@ -37,9 +40,7 @@ class Model:
         self.scale_mdl = StandardScaler().fit(x_train[quanti_features])
         self.x_train_scaled[quanti_features] = self.scale_mdl.transform(self.x_train[quanti_features])
         self.x_test_scaled[quanti_features] = self.scale_mdl.transform(self.x_test[quanti_features])
-        # self.mdl = LinearRegression().fit(self.x_train_scaled, self.y_train)
         self.mdl = Ridge().fit(self.x_train_scaled, self.y_train)
-        # self.mdl = DummyRegressor(strategy="mean").fit(self.x_train, self.y_train)
         self.y_pred = self.mdl.predict(self.x_test_scaled)
         self.regr_trans = TransformedTargetRegressor(regressor=Ridge(),
                                                      transformer=PowerTransformer(method='box-cox')).fit(self.x_train_scaled, self.y_train)
@@ -88,6 +89,18 @@ class Model:
         print('Coefficient of determination: ', r2_score(self.y_test, self.y_pred))
         print('MAPE: ', mean_absolute_percentage_error(self.y_test, self.y_pred))
         print('MAPE Power Transformed: ', mean_absolute_percentage_error(self.y_test, self.y_pred_trans))
+
+    def permutation_importance(self):
+        result = permutation_importance(self.regr_trans, self.x_train_scaled, self.y_train, n_repeats=3,
+                                        random_state=42, n_jobs=2)
+        sorted_idx = result.importances_mean.argsort()[0:20]
+
+        fig, ax = plt.subplots()
+        ax.boxplot(result.importances[sorted_idx].T,
+                   vert=False, labels=self.x_train_scaled.columns[sorted_idx])
+        ax.set_title("Permutation Importances (test set)")
+        fig.tight_layout()
+        plt.show()
 
     def predict(self, x_pred):
         y_pred = self.mdl.predict(x_pred)

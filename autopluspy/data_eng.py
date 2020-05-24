@@ -116,7 +116,6 @@ def extract_options(dataset):
     print("## PCA")
     n_comp = 100
     columns_name = ['pca_res_' + str(i) for i in range(1, n_comp + 1)]
-    print(count_data.shape)
     count_data = count_data.iloc[:, 0:1000]
     print("## PCA Fit")
     pca = PCA(n_comp).fit(count_data)
