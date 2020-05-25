@@ -42,7 +42,7 @@ class Model:
         self.x_test_scaled[quanti_features] = self.scale_mdl.transform(self.x_test[quanti_features])
         self.mdl = Ridge().fit(self.x_train_scaled, self.y_train)
         self.y_pred = self.mdl.predict(self.x_test_scaled)
-        self.regr_trans = TransformedTargetRegressor(regressor=Ridge(),
+        self.regr_trans = TransformedTargetRegressor(regressor=RandomForestRegressor(),
                                                      transformer=PowerTransformer(method='box-cox')).fit(self.x_train_scaled, self.y_train)
         self.y_pred_trans = self.regr_trans.predict(self.x_test_scaled)
 
@@ -87,8 +87,8 @@ class Model:
     def performance(self):
         # The coefficient of determination: 1 is perfect prediction
         print('Coefficient of determination: ', r2_score(self.y_test, self.y_pred))
-        print('MAPE: ', mean_absolute_percentage_error(self.y_test, self.y_pred))
-        print('MAPE Power Transformed: ', mean_absolute_percentage_error(self.y_test, self.y_pred_trans))
+        print('MAPE Ridge : ', mean_absolute_percentage_error(self.y_test, self.y_pred))
+        print('MAPE Power Transformed + RF : ', mean_absolute_percentage_error(self.y_test, self.y_pred_trans))
 
     def permutation_importance(self):
         result = permutation_importance(self.regr_trans, self.x_train_scaled, self.y_train, n_repeats=3,

@@ -263,4 +263,6 @@ dmypy.json
 
 *.pyc
 
+*.sav
+
 # End of https://www.gitignore.io/api/python
