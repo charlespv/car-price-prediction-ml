@@ -16,7 +16,7 @@ virtualenv -p python3 venv
 ```
 3. Install dependencies
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 4. Put the initial dataset into `/data` folder
 
