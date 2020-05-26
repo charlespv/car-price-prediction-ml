@@ -16,6 +16,7 @@ from nltk.stem import SnowballStemmer
 nltk.download('punkt')
 nltk.download('stopwords')
 
+
 def remove_duplicated_rows(dataset):
     print('# Drop duplicated content')
     print('Dataset shape : ', dataset.shape)
@@ -53,6 +54,12 @@ def missing_values(dataset, type):
 
 
 def generate_data_dict(dataset, details, path):
+    """
+    :param dataset: dataframe
+    :param details: dict of the data dictionary
+    :param path: path where the data dictionary will be saved
+    :return:
+    """
     for item in details.items():
         feature_name = item[0]
         feature_type = item[1]['type']
@@ -73,6 +80,11 @@ def read_data_dict(path):
 
 
 def adapt_datatype(dataset, path):
+    """
+    :param dataset: DataFrame
+    :param path: where the data dictionary is saved
+    :return: DataFrame updated
+    """
     data_dict = read_data_dict(path)
     for item in data_dict.items():
         feature_name = item[0]
@@ -83,7 +95,12 @@ def adapt_datatype(dataset, path):
             dataset[feature_name] = dataset[feature_name].astype('category')
     return dataset
 
+
 def extract_options(dataset):
+    """
+    :param dataset: input dataset
+    :return: dataset with new features based and column name
+    """
     print("## Copy Description")
     df = pd.DataFrame()
     df['Description'] = dataset['Description']
@@ -127,6 +144,10 @@ def extract_options(dataset):
 
 
 def specific_parser(dataset):
+    """
+    :param dataset: DataFrame
+    :return: DataFrame with features from Description
+    """
     # Mileage : remove 'km'
     dataset['Mileage'] = dataset['Mileage'].str.split('.', expand=True)[0].astype('int32')
 
@@ -166,6 +187,10 @@ def specific_parser(dataset):
 
 
 def remove_outlier(df):
+    """
+    :param df: DataFrame
+    :return: DataFrame with some quanti feature without outlier
+    """
     # Price
     print('Shape before removing outlier : ', df.shape)
     feature_name = "Price"
@@ -205,6 +230,11 @@ def remove_outlier(df):
 
 
 def learn_set(path, target_name):
+    """
+    :param path: path of the initial dataset
+    :param target_name: name of the target feature
+    :return: X, y, quanti_features, quality_features
+    """
     dataset = pd.read_csv(path)
     #dataset = shuffle(dataset, n_samples=10000, random_state=0)
     # dataset = shuffle(dataset, random_state=0)
